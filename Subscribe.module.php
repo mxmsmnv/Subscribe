@@ -19,7 +19,7 @@ class Subscribe extends WireData implements Module, ConfigurableModule {
 	public static function getModuleInfo() {
 		return [
 			'title'    => 'Subscribe',
-			'version'  => 104,
+			'version'  => 105,
 			'summary'  => 'Newsletter subscription handler with lists, double opt-in, honeypot, rate limiting and unsubscribe link.',
 			'author'   => 'Maxim Alex',
 			'requires' => ['ProcessSubscribe'],
@@ -207,6 +207,55 @@ class Subscribe extends WireData implements Module, ConfigurableModule {
 			echo json_encode($result);
 			exit;
 		}
+
+		// JSON API: /?subscribe_api=subscribers&list=1&key=xxx
+		if ($input->get('subscribe_api')) {
+			$this->handleApi(
+				(string) $input->get('subscribe_api'),
+				(int) $input->get('list'),
+				(string) $input->get('status'),
+				(string) $input->get('key')
+			);
+		}
+	}
+
+	// -------------------------------------------------------------------------
+	// JSON API
+	// -------------------------------------------------------------------------
+	protected function handleApi($action, $listId, $status, $key) {
+		ob_start();
+		header('Content-Type: application/json');
+
+		$apiKey = (string) $this->api_key;
+		if (!$apiKey || !hash_equals($apiKey, $key)) {
+			ob_end_clean();
+			http_response_code(403);
+			echo json_encode(['error' => 'Invalid API key.']);
+			exit;
+		}
+
+		$db = $this->wire('database');
+
+		if ($action === 'subscribers') {
+			if (!$listId) $listId = $this->getDefaultListId();
+			$status = $status ?: 'active';
+			$rows = $this->getSubscribers($listId, $status);
+			ob_end_clean();
+			echo json_encode(['list' => $listId, 'status' => $status, 'total' => count($rows), 'subscribers' => $rows]);
+			exit;
+		}
+
+		if ($action === 'lists') {
+			$rows = $db->query("SELECT l.id, l.name, COUNT(sc.id) as total FROM `subscribe_form_lists` l LEFT JOIN `subscribe_form_subscriptions` sc ON sc.list_id=l.id GROUP BY l.id ORDER BY l.id ASC")->fetchAll(PDO::FETCH_ASSOC);
+			ob_end_clean();
+			echo json_encode(['lists' => $rows]);
+			exit;
+		}
+
+		ob_end_clean();
+		http_response_code(400);
+		echo json_encode(['error' => 'Unknown action. Use: subscribers, lists']);
+		exit;
 	}
 
 	protected function handleConfirm($token) {
@@ -357,6 +406,7 @@ class Subscribe extends WireData implements Module, ConfigurableModule {
 			'confirm_error_page'   => '',
 			'rate_limit_attempts'  => 3,
 			'rate_limit_minutes'   => 10,
+			'api_key'              => '',
 		];
 		$data = array_merge($defaults, $data);
 
@@ -459,6 +509,21 @@ class Subscribe extends WireData implements Module, ConfigurableModule {
 		$fs4->add($f);
 
 		$inputfields->add($fs4);
+
+		// API
+		$fs5 = $modules->get('InputfieldFieldset');
+		$fs5->label = __('JSON API');
+		$fs5->description = __('Read-only API for external integrations. Leave the key empty to disable.');
+
+		$f = $modules->get('InputfieldText');
+		$f->attr('name', 'api_key');
+		$f->label = __('API Key');
+		$f->description = __('Secret key required for all API requests. Generate a random string and share it only with trusted integrations.');
+		$f->notes = __('Endpoints: `/?subscribe_api=subscribers&list=1&status=active&key=YOUR_KEY` — returns subscribers. `/?subscribe_api=lists&key=YOUR_KEY` — returns all lists.');
+		$f->value = $data['api_key'];
+		$fs5->add($f);
+
+		$inputfields->add($fs5);
 
 		return $inputfields;
 	}

@@ -13,7 +13,7 @@ class ProcessSubscribe extends Process {
 	public static function getModuleInfo() {
 		return [
 			'title'    => 'ProcessSubscribe',
-			'version'  => 102,
+			'version'  => 104,
 			'summary'  => 'Admin interface for Subscribe module.',
 			'author'   => 'Maxim Alex',
 			'requires' => [],
@@ -429,6 +429,28 @@ PHP,
 		$out .= '.sf-pagination .sf-active{background:#1a73e8;color:#fff;border-color:#1a73e8}';
 		$out .= '.sf-import{margin-top:10px;padding:10px;border:1px dashed #ccc;border-radius:3px;font-size:13px}';
 		$out .= '.sf-import label{display:block;margin-bottom:6px;font-weight:600}';
+		$out .= '.sf-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}';
+		$out .= '.sf-input-email{width:260px}';
+		$out .= '.sf-input-search{width:220px}';
+		$out .= '.sf-input-status{width:150px}';
+		$out .= '@media screen and (max-width:767px){';
+		$out .= '.sf-layout{display:block !important}';
+		$out .= '.sf-sidebar{width:100% !important;margin-bottom:20px}';
+		$out .= '.sf-main{width:100% !important}';
+		$out .= '.sf-add,.sf-filters{display:flex !important;flex-direction:column !important;align-items:stretch !important}';
+		$out .= '.sf-add input,.sf-add button,.sf-filters input,.sf-filters select,.sf-filters button,.sf-filters a{width:100% !important;max-width:100% !important;box-sizing:border-box !important;text-align:center}';
+		$out .= '.sf-toolbar{display:flex !important;flex-direction:column !important;align-items:stretch !important}';
+		$out .= '.sf-export{width:100%;justify-content:stretch}';
+		$out .= '.sf-export a{flex:1;text-align:center}';
+		$out .= '.sf-table{font-size:13px}';
+		$out .= '.sf-table th,.sf-table td{padding:6px 8px;white-space:nowrap}';
+		$out .= '.sf-table .sf-col-ip{display:none}';
+		$out .= '.sf-actions{white-space:nowrap}';
+		$out .= '.sf-actions form{display:inline-block}';
+		$out .= '.sf-sidebar form{display:flex;flex-direction:column;gap:6px}';
+		$out .= '.sf-sidebar input[type="text"],.sf-sidebar button{width:100% !important;box-sizing:border-box !important}';
+		$out .= '.sf-import{margin-top:12px}';
+		$out .= '}';
 		$out .= '</style>';
 
 		$out .= '<h2>' . $this->_('Subscribers');
@@ -507,7 +529,7 @@ PHP,
 			$out .= '<input type="hidden" name="' . $csrf->getTokenName() . '" value="' . $csrf->getTokenValue() . '">';
 			$out .= '<input type="hidden" name="action" value="add">';
 			$out .= '<input type="hidden" name="list_id" value="' . $activeList . '">';
-			$out .= '<input type="email" name="email" class="uk-input" style="width:260px" placeholder="' . $this->_('email@example.com') . '" required>';
+			$out .= '<input type="email" name="email" class="uk-input sf-input-email" placeholder="' . $this->_('email@example.com') . '" required>';
 			$out .= '<button type="submit" class="ui-button ui-state-default ui-corner-all">' . $this->_('Add Subscriber') . '</button>';
 			$out .= '</form>';
 
@@ -515,8 +537,8 @@ PHP,
 			$baseUrl = './?list=' . $activeList;
 			$out .= '<form method="get" class="sf-filters">';
 			$out .= '<input type="hidden" name="list" value="' . $activeList . '">';
-			$out .= '<input type="text" name="q" class="uk-input" style="width:220px" placeholder="' . $this->_('Search email...') . '" value="' . htmlspecialchars($search) . '">';
-			$out .= '<select name="status" class="uk-input" style="width:150px">';
+			$out .= '<input type="text" name="q" class="uk-input sf-input-search" placeholder="' . $this->_('Search email...') . '" value="' . htmlspecialchars($search) . '">';
+			$out .= '<select name="status" class="uk-input sf-input-status">';
 			foreach (['' => $this->_('All statuses'), 'active' => $this->_('Active'), 'pending' => $this->_('Pending'), 'unsubscribed' => $this->_('Unsubscribed')] as $val => $label) {
 				$sel = $filterStatus === $val ? ' selected' : '';
 				$out .= '<option value="' . $val . '"' . $sel . '>' . $label . '</option>';
@@ -563,8 +585,9 @@ PHP,
 			} elseif (!$rows) {
 				$out .= '<p>' . $this->_('No subscribers found.') . '</p>';
 			} else {
+				$out .= '<div class="sf-table-wrap">';
 				$out .= '<table class="sf-table AdminDataTable">';
-				$out .= '<thead><tr><th>#</th><th>' . $this->_('Email') . '</th><th>' . $this->_('IP') . '</th><th>' . $this->_('Status') . '</th><th>' . $this->_('Date') . '</th><th>' . $this->_('Actions') . '</th></tr></thead><tbody>';
+				$out .= '<thead><tr><th>#</th><th>' . $this->_('Email') . '</th><th class="sf-col-ip">' . $this->_('IP') . '</th><th>' . $this->_('Status') . '</th><th>' . $this->_('Date') . '</th><th>' . $this->_('Actions') . '</th></tr></thead><tbody>';
 
 				foreach ($rows as $row) {
 					$s = $row['status'];
@@ -573,7 +596,7 @@ PHP,
 					$out .= '<tr>';
 					$out .= '<td>' . (int) $row['id'] . '</td>';
 					$out .= '<td>' . htmlspecialchars($row['email']) . '</td>';
-					$out .= '<td>' . htmlspecialchars($row['ip']) . '</td>';
+					$out .= '<td class="sf-col-ip">' . htmlspecialchars($row['ip']) . '</td>';
 					$out .= '<td><span class="sf-status sf-status-' . $s . '">' . ucfirst($s) . '</span></td>';
 					$out .= '<td>' . htmlspecialchars($row['created_at']) . '</td>';
 					$out .= '<td class="sf-actions">';
@@ -604,6 +627,7 @@ PHP,
 					$out .= '</td></tr>';
 				}
 				$out .= '</tbody></table>';
+				$out .= '</div>'; // sf-table-wrap
 
 				// Pagination
 				if ($pages > 1) {

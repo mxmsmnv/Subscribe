@@ -17,6 +17,8 @@ Newsletter subscription module for ProcessWire with multiple lists, double opt-i
 - [Uninstall](#uninstall)
 - [License](#license)
 
+If this project helps your work, consider supporting future development: [GitHub Sponsors](https://github.com/sponsors/mxmsmnv) or [smnv.org/sponsor](https://smnv.org/sponsor/).  
+
 ## Features
 
 - Multiple subscription lists with many-to-many subscriber relationships

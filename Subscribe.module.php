@@ -12,7 +12,7 @@
  *   subscribe_form_subscriptions — many-to-many with status/token per subscription
  *   subscribe_form_ratelimit     — IP-based rate limiting
  *
- * @author Maxim Alex
+ * @author Maxim Semenov <maxim@smnv.org> (smnv.org)
  */
 class Subscribe extends WireData implements Module, ConfigurableModule {
 
@@ -21,7 +21,8 @@ class Subscribe extends WireData implements Module, ConfigurableModule {
 			'title'    => 'Subscribe',
 			'version'  => 105,
 			'summary'  => 'Newsletter subscription handler with lists, double opt-in, honeypot, rate limiting and unsubscribe link.',
-			'author'   => 'Maxim Alex',
+			'author'   => 'Maxim Semenov',
+			'href'     => 'https://smnv.org',
 			'requires' => ['ProcessSubscribe'],
 			'autoload' => true,
 			'singular' => true,

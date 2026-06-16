@@ -6,7 +6,7 @@
  * Admin UI: manage lists, search/filter, paginate, add/toggle/delete/resend,
  * import CSV, export JSON/CSV.
  *
- * @author Maxim Alex
+ * @author Maxim Semenov <maxim@smnv.org> (smnv.org)
  */
 class ProcessSubscribe extends Process {
 
@@ -15,7 +15,8 @@ class ProcessSubscribe extends Process {
 			'title'    => 'ProcessSubscribe',
 			'version'  => 104,
 			'summary'  => 'Admin interface for Subscribe module.',
-			'author'   => 'Maxim Alex',
+			'author'   => 'Maxim Semenov',
+			'href'     => 'https://smnv.org',
 			'requires' => [],
 			'autoload' => false,
 			'singular' => true,

@@ -2,6 +2,8 @@
 
 Newsletter subscription module for ProcessWire with multiple lists, double opt-in, honeypot spam protection, rate limiting, unsubscribe links, hookable events, and a full admin interface.
 
+![Subscribe](assets/Subscribe.png)
+
 - [Features](#features)
 - [Requirements](#requirements)
 - [Installation](#installation)
